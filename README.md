@@ -97,7 +97,69 @@ Name | Type | Description
 `includeError` | *`boolean`* | Whether to include the error message in the response text for uncaught errors during the `Request`/`Response` flow. Default is `true`
 
 ## Benchmarks
-TBD
+Quick benchmark to a simple endpoint that returns 0 bytes with a 200 status code on my local machine (`i7`, `wsl2`, node `v22.15.0`):
+### Hono
+```
+bombardier --fasthttp -l -d 10s -c 128 "http://localhost:8080/health"
+
+Statistics        Avg      Stdev        Max
+  Reqs/sec    133002.41   13315.42  170398.29
+  Latency        0.97ms   817.32us   121.98ms
+  Latency Distribution
+     50%     0.86ms
+     75%     1.18ms
+     90%     1.58ms
+     95%     1.86ms
+     99%     2.83ms
+  HTTP codes:
+    1xx - 0, 2xx - 1317090, 3xx - 0, 4xx - 0, 5xx - 0
+    others - 0
+  Throughput:    19.72MB/s
+```
+### Elysia
+```
+bombardier --fasthttp -l -d 10s -c 128 "http://localhost:8080/health"
+
+Statistics        Avg      Stdev        Max
+  Reqs/sec     54935.79    4788.44   60384.99
+  Latency        2.34ms     1.20ms   126.99ms
+  Latency Distribution
+     50%     2.14ms
+     75%     2.37ms
+     90%     3.18ms
+     95%     4.08ms
+     99%     4.67ms
+  HTTP codes:
+    1xx - 0, 2xx - 544184, 3xx - 0, 4xx - 0, 5xx - 0
+    others - 0
+  Throughput:    10.27MB/s
+```
+### Express (non-uws)
+```
+bombardier --fasthttp -l -d 10s -c 128 "http://localhost:8080/health"
+
+Statistics        Avg      Stdev        Max
+  Reqs/sec     18794.08    1940.57   21559.27
+  Latency        6.85ms     2.55ms   210.50ms
+  Latency Distribution
+     50%     6.30ms
+     75%     7.22ms
+     90%     8.05ms
+     95%     8.90ms
+     99%    12.98ms
+  HTTP codes:
+    1xx - 0, 2xx - 186828, 3xx - 0, 4xx - 0, 5xx - 0
+    others - 0
+  Throughput:     5.29MB/s
+```
+### Results
+Name | Req (avg) | Req (max) | p99 | Multiplier
+-----|-----------|-----------|-----|-----------
+Hono | 133,002.41 | 170,398.29 | 2.83ms | `7.07x`-`7.90x`
+Elysia | 54,935.79 | 60,384.99 | 4.67ms | `2.92x`-`2.80x`
+Express | 18,794.08 | 21,559.27 | 12.98ms | `1x`-`1x`
+
+*Elysia with uws sees an almost `3x` improvement over express, but Hono with uws sees over `7x` improvement*
 
 ## Examples
 Generate custom uWebSockets server instances
