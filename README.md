@@ -159,7 +159,7 @@ Hono | 133,002.41 | 170,398.29 | 2.83ms | `7.07x`-`7.90x`
 Elysia | 54,935.79 | 60,384.99 | 4.67ms | `2.92x`-`2.80x`
 Express | 18,794.08 | 21,559.27 | 12.98ms | `1x`-`1x`
 
-*Elysia with uws sees an almost `3x` improvement over express, but Hono with uws sees over `7x` improvement*
+*Elysia with uWS sees almost `3x` improvement over Express. Hono with uWS sees over `7x` improvement*
 
 ## Examples
 Generate custom uWebSockets server instances
