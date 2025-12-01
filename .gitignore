@@ -1,0 +1,13 @@
+build/
+coverage/
+dev/
+logs/
+node_modules/
+secrets/
+tmp/
+.docusaurus
+.DS_Store
+.idea
+.log
+.nyc_output
+.vscode
