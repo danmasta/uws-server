@@ -90,14 +90,14 @@ Name | Type | Description
 `host` | *`string`* | Default host to use for requests without a host header. Default is `undefined`
 `ssl` | *`boolean`* | Enable `ssl`. Default is `false`
 `http3` | *`boolean`* | Enable `http3`. This is [experimental](https://github.com/uNetworking/uWebSockets/issues/1280). Default is `false`
-`createServer` | *`function`* | Custom function to use to generate the server instance. Default is `undefined`
+`createServer` | *`function`* | Custom function to use when generating the server instance. Default is `undefined`
 `server` | *`object`* | Custom [`AppOptions`](https://unetworking.github.io/uWebSockets.js/generated/interfaces/AppOptions.html) to pass to `uWebSockets` on server instance creation. Default is `undefined`
 `uws` | *`object`* | `uWebSockets` default export to use for generating server instances. If this is not set, `serve` will attempt to load via dynamic import. Default is `undefined`
 `globals` | *`boolean`* | This library borrows the concept of lightweight `Request` and `Response` classes from hono, in which the `Request` and `Repsonse` classes are lazily created when accessed. If `true`, this will enable overriding of the built-in `Request` and `Response` classes. *This functionality is subject to change or removal. Default is `true`
 `includeError` | *`boolean`* | Whether to include the error message in the response text for uncaught errors during the `Request`/`Response` flow. Default is `true`
 
 ## Benchmarks
-Quick benchmark to a simple endpoint that returns 0 bytes with a 200 status code on my local machine (`i7`, `wsl2`, node `v22.15.0`):
+Quick benchmark to a simple endpoint that returns zero bytes with a 200 status code on my local machine (`i7`, `wsl2`, node `v22.15.0`):
 ### Hono
 ```
 bombardier --fasthttp -l -d 10s -c 128 "http://localhost:8080/health"
