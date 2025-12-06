@@ -6,7 +6,7 @@ uWebSockets server based on web standards APIs
 * Blazingly fast :fire:
 * Support for web standards based frameworks
 * Supports `HTTP`, `SSL`, and `HTTP/3`
-* Supports streaming request and response bodies
+* Support for streaming request and response bodies
 * Handles backpressure
 * 0 external dependencies
 
@@ -181,7 +181,7 @@ H3 | 106,615.78 | 122,120.10 | 2.92ms | `5.67x`-`5.66x`
 Elysia | 58,095.49 | 62,637.02 | 4.42ms | `3.09x`-`2.90x`
 Express | 18,794.08 | 21,559.27 | 12.98ms | `1x`-`1x`
 
-*Elysia with uWS sees `3x` improvement over Express. H3 with uWS sees over `5x` improvement. Hono with uWS sees over `7x` improvement*
+*Elysia with uWS sees `3x` improvement over Express. While H3 with uWS sees over `5x` improvement, and Hono with uWS sees over `7x` improvement*
 
 ## Examples
 Generate custom uWebSockets server instances
