@@ -106,36 +106,54 @@ Quick benchmark to a simple endpoint that returns zero bytes with a 200 status c
 bombardier --fasthttp -l -d 10s -c 128 "http://localhost:8080/health"
 
 Statistics        Avg      Stdev        Max
-  Reqs/sec    133002.41   13315.42  170398.29
-  Latency        0.97ms   817.32us   121.98ms
+  Reqs/sec    142158.70   17551.53  176572.69
+  Latency        0.90ms   768.26us   146.56ms
   Latency Distribution
-     50%     0.86ms
-     75%     1.18ms
-     90%     1.58ms
+     50%   777.00us
+     75%     1.11ms
+     90%     1.50ms
      95%     1.86ms
-     99%     2.83ms
+     99%     2.95ms
   HTTP codes:
-    1xx - 0, 2xx - 1317090, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 1414384, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:    19.72MB/s
+  Throughput:    21.18MB/s
+```
+### H3
+```
+bombardier --fasthttp -l -d 10s -c 128 "http://localhost:8080/health"
+
+Statistics        Avg      Stdev        Max
+  Reqs/sec    106615.78   13159.17  122120.10
+  Latency        1.21ms     1.10ms   129.36ms
+  Latency Distribution
+     50%     1.10ms
+     75%     1.44ms
+     90%     1.88ms
+     95%     2.17ms
+     99%     2.92ms
+  HTTP codes:
+    1xx - 0, 2xx - 1059614, 3xx - 0, 4xx - 0, 5xx - 0
+    others - 0
+  Throughput:    22.13MB/s
 ```
 ### Elysia
 ```
 bombardier --fasthttp -l -d 10s -c 128 "http://localhost:8080/health"
 
 Statistics        Avg      Stdev        Max
-  Reqs/sec     54935.79    4788.44   60384.99
-  Latency        2.34ms     1.20ms   126.99ms
+  Reqs/sec     58095.49    3815.93   62637.02
+  Latency        2.22ms     1.48ms   129.70ms
   Latency Distribution
-     50%     2.14ms
-     75%     2.37ms
-     90%     3.18ms
-     95%     4.08ms
-     99%     4.67ms
+     50%     2.00ms
+     75%     2.21ms
+     90%     2.77ms
+     95%     3.88ms
+     99%     4.42ms
   HTTP codes:
-    1xx - 0, 2xx - 544184, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 575371, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:    10.27MB/s
+  Throughput:    11.85MB/s
 ```
 ### Express (non-uws)
 ```
@@ -158,11 +176,12 @@ Statistics        Avg      Stdev        Max
 ### Results
 Name | Req/s (avg) | Req/s (max) | p99 | Multiplier
 -----|-------------|-------------|-----|-----------
-Hono | 133,002.41 | 170,398.29 | 2.83ms | `7.07x`-`7.90x`
-Elysia | 54,935.79 | 60,384.99 | 4.67ms | `2.92x`-`2.80x`
+Hono | 142,158.70 | 176,572.69 | 2.95ms | `7.56x`-`8.19x`
+H3 | 106,615.78 | 122,120.10 | 2.92ms | `5.67x`-`5.66x`
+Elysia | 58,095.49 | 62,637.02 | 4.42ms | `3.09x`-`2.90x`
 Express | 18,794.08 | 21,559.27 | 12.98ms | `1x`-`1x`
 
-*Elysia with uWS sees almost `3x` improvement over Express. Hono with uWS sees over `7x` improvement*
+*Elysia with uWS sees `3x` improvement over Express. H3 with uWS sees over `5x` improvement. Hono with uWS sees over `7x` improvement*
 
 ## Examples
 Generate custom uWebSockets server instances
