@@ -8,6 +8,9 @@ uWebSockets server based on web standards APIs
 * Supports `HTTP`, `SSL`, and `HTTP/3`
 * Support for streaming request and response bodies
 * Handles backpressure
+* Graceful shutdown and connection draining
+* Signal handling
+* Support for handling uncaught exceptions
 * 0 external dependencies
 
 ## About
@@ -78,7 +81,7 @@ Serving static files is not yet implemented, but is planned
 ### serve
 Base entrypoint for initializing a uWS server instance
 
-Signature:
+#### Signature:
 ```js
 serve(opts?, fn?(info, server));
 ```
@@ -89,7 +92,7 @@ Name | Type | Description
 `fetch` | *`function`* | Custom function to use when generating a [`Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response). Default is `undefined`
 `bind` | *`string`* | Address to bind server to. This can be a wildcard address (`::`, `0.0.0.0`), loopback address (`127.0.0.1`, `::1`, `localhost`), or a specific interface address (`10.0.0.1`). Default is `::`
 `port` | *`number`* | Port to listen on (`undefined` or `null` will allocate a random port). Default is `undefined`
-`host` | *`string`* | Default host to use for requests without a host header. Default is `undefined`
+`defaultHost` | *`string`* | Default host to use for requests without a host header. Default is `undefined`
 `ssl` | *`boolean`* | Enable `SSL`. You will need to supply `server` options for the key/cert configuration. Default is `false`
 `http3` | *`boolean`* | Enable `HTTP/3`. This is [experimental](https://github.com/uNetworking/uWebSockets/issues/1280). Default is `false`
 `createServer` | *`function`* | Custom function to use when generating the server instance. Default is `undefined`
@@ -98,6 +101,13 @@ Name | Type | Description
 `globals` | *`boolean`* | This library borrows the concept of lightweight `Request` and `Response` classes from hono, in which the `Request` and `Repsonse` objects are lazily created when accessed. If `true`, this will enable overriding of the built-in `Request` and `Response` classes. *This functionality is subject to change or removal. Default is `true`
 `showError` | *`boolean`* | Include error message in the response text for uncaught errors during the `Request`/`Response` flow. Default is `true`
 `showStack` | *`boolean`* | Include error stack trace in the response text for uncaught errors during the `Request`/`Response` flow. Default is `false`
+`log` | *`object`* | Custom log implementation to use. Custom loggers should at least implement the methods: `info`, `error`, `warn`, `debug`, and support printf style [string formatting](https://nodejs.org/api/util.html#utilformatformat-args). Default is `console`
+`timeout` | *`number`* | Maximum time to wait for connections to drain during graceful shutdown in milliseconds. Default is `10000`
+`listen` | *`boolean`* | Start listen socket on server create. Default is `true`
+`signals` | *`string\|string[]`* | [Signals](https://nodejs.org/api/os.html#signal-constants) to listen on for graceful shutdown. Default is `['SIGINT', 'SIGTERM']`
+`exitOnSignal` | *`boolean`* | Enable exiting process after signal shutdown. Default is `true`
+`handleUncaught` | *`boolean`* | Enable handling uncaught exceptions and rejections. Default is `true`
+`exitOnUncaught` | *`boolean`* | Enable exiting process after uncaught exception or rejection. Default is `true`
 
 ## Benchmarks
 Quick benchmark to a simple endpoint that returns zero bytes with a 200 status code on my local machine (`i7`, `wsl2`, node `v22.15.0`):
