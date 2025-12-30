@@ -108,6 +108,7 @@ Name | Type | Description
 `exitOnSignal` | *`boolean`* | Enable exiting process after signal shutdown. Default is `true`
 `handleUncaught` | *`boolean`* | Enable handling uncaught exceptions and rejections. Default is `true`
 `exitOnUncaught` | *`boolean`* | Enable exiting process after uncaught exception or rejection. Default is `true`
+`shutdown` | *`function\|promise`* | Handlers to execute on graceful shutdown. Handlers can be `functions` or `promises`, they are executed in order and `awaited`. Default is `undefined`
 
 ## Benchmarks
 Quick benchmark to a simple endpoint that returns zero bytes with a 200 status code on my local machine (`i7`, `wsl2`, node `v22.15.0`):
