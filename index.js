@@ -1,7 +1,7 @@
 import { SYMBOLS } from './lib/constants.js';
 import { Request, uWSRequest } from './lib/request.js';
 import { uWSResponse } from './lib/response.js';
-import { serve, uWSServer } from './lib/server.js';
+import { serve, Server, uWSServer } from './lib/server.js';
 import { conninfo, RequestError, ResponseError, ServerError } from './lib/util.js';
 
 export {
@@ -10,6 +10,7 @@ export {
     RequestError,
     ResponseError,
     serve,
+    Server,
     ServerError,
     SYMBOLS,
     uWSRequest,
