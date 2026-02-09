@@ -28,7 +28,7 @@
     "registry": "https://npm.pkg.github.com"
   },
   "dependencies": {
-    "lo": "github:danmasta/lo#semver:^0.0.8"
+    "lo": "github:danmasta/lo#semver:^0.0.9"
   },
   "devDependencies": {
     "c8": "^10.1.3",
