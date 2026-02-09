@@ -122,7 +122,7 @@ Name | Type | Description
 -----|----- | -----------
 `cwd` | *`string`* | Base path to resolve relative paths from. Default is `process.cwd`
 `root` | *`string`* | Directory to serve files from. Default is `undefined`
-`normalize` | *`string`* | String to remove from beginning of request paths. If you mounted the middleware at `/static/*`, Hono would still include `/static` in the request path. Setting this option to `/static` would remove the leading mount point. Default is `undefined`
+`normalize` | *`string`* | String to remove from beginning of request paths. If you mounted the middleware at `/static/*`, Hono will include `/static` in the request path. Setting this option to `/static` would remove the leading mount point. Default is `undefined`
 `index` | *`boolean`* | Enable serving `index.html` if a matched path is a directory. Default is `false`
 `rewrite` | *`function(path)`* | Function to use for rewriting file paths before lookup. Default is `undefined`
 `lastModified` | *`boolean`* | Enable setting the `last-modified` header. Default is `true`
@@ -221,10 +221,27 @@ Express | 18,794.08 | 21,559.27 | 12.98ms | `1x`-`1x`
 *Elysia with uWS sees `3x` improvement over Express. While H3 with uWS sees over `5x` improvement, and Hono with uWS sees over `7x` improvement*
 
 ## Examples
+Serve a Hono app instance on port `8080`, and static assets from the `build` directory at the `/static` mount path
+```js
+import { serve, serveStatic } from 'uws-server';
+import { Hono } from 'hono';
+
+const app = new Hono();
+
+app.use('/static/*', serveStatic('build', {
+    normalize: '/static',
+    cache: true
+}));
+
+serve({
+    fetch: app.fetch,
+    port: 8080
+});
+```
 Generate custom uWebSockets server instances
 ```js
-import uws from 'uws';
 import { serve } from 'uws-server';
+import uws from 'uws';
 
 function createServer () {
     return uws.App();
