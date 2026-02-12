@@ -93,8 +93,8 @@ Name | Type | Description
 `ssl` | *`boolean`* | Enable `SSL`. You will need to supply `server` options for the key/cert configuration. Default is `false`
 `http3` | *`boolean`* | Enable `HTTP/3`. This is [experimental](https://github.com/uNetworking/uWebSockets/issues/1280). Default is `false`
 `createServer` | *`function`* | Custom function to use when generating the server instance. Default is `undefined`
-`server` | *`object`* | Custom [`AppOptions`](https://unetworking.github.io/uWebSockets.js/generated/interfaces/AppOptions.html) to pass to `uWebSockets` on server instance creation. Default is `undefined`
-`uws` | *`object`* | `uWebSockets` default export to use for generating server instances. If this is not set, `serve` will attempt to load via dynamic import. Default is `undefined`
+`app` | *`object`* | Custom [`AppOptions`](https://unetworking.github.io/uWebSockets.js/generated/interfaces/AppOptions.html) to pass to `uWebSockets` on server instance creation. Default is `undefined`
+`uws` | *`object`* | `uWebSockets` default export to use for generating server instances. If this is not set, it will be loaded via dynamic import on `listen`. Default is `undefined`
 `globals` | *`boolean`* | This library borrows the concept of lightweight `Request` and `Response` classes from Hono, in which the `Request` and `Repsonse` objects are lazily created when accessed. If `true`, this will enable overriding of the built-in `Request` and `Response` classes. *This functionality is subject to change or removal. Default is `true`
 `showError` | *`boolean`* | Include error message in the response text for uncaught errors during the `Request`/`Response` flow. Default is `true`
 `showStack` | *`boolean`* | Include error stack trace in the response text for uncaught errors during the `Request`/`Response` flow. Default is `false`
