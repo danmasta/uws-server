@@ -74,9 +74,9 @@ serve({
 
 ## Documentation
 ### Server
-Base entrypoint for initializing a uWS server instance. You can use the `Server` class directly, or use the factory function `serve`
+Base entrypoint for initializing a uWS server instance. You can use the `uWSServer` class directly, or use the factory functions `Server` and `serve`
 ```js
-import { Server, serve } from 'uws-server';
+import { uWSServer, Server, serve } from 'uws-server';
 ```
 #### Signature:
 ```js
@@ -100,7 +100,7 @@ Name | Type | Description
 `showStack` | *`boolean`* | Include error stack trace in the response text for uncaught errors during the `Request`/`Response` flow. Default is `false`
 `log` | *`object`* | Log implementation to use. Custom loggers should at least implement the methods: `info`, `error`, `warn`, `debug`, and support printf style [string formatting](https://nodejs.org/api/util.html#utilformatformat-args). Default is `console`
 `timeout` | *`number`* | Maximum time to wait for connections to drain during graceful shutdown in milliseconds. Default is `10000`
-`listen` | *`boolean`* | Start listen socket on server create. Default is `false`, but set to `true` when using `serve()`
+`listen` | *`boolean`* | Start listen socket on server create. Default is `false`
 `signals` | *`string\|string[]`* | [Signals](https://nodejs.org/api/os.html#signal-constants) to listen to for graceful shutdown. Default is `['SIGINT', 'SIGTERM']`
 `exitOnSignal` | *`boolean`* | Enable exiting process after signal shutdown. Default is `true`
 `handleUncaught` | *`boolean`* | Enable handling uncaught exceptions and rejections. Default is `true`
