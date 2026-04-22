@@ -19,6 +19,8 @@ uWebSockets server based on web standards APIs
 ## About
 Lightweight server implementation based on [uWebSockets](https://github.com/uNetworking/uWebSockets.js). Originally designed with the [Hono](#hono) framework in mind, it can also be used with [Elysia](#elysia) or any other framework/runtime that supports [web standards APIs](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
 
+Based on the [benchmarks](#results), `uws-server` is able to achieve ~90% throughput of vanilla uWebSockets. But with the benefit of being able to use higher-level frameworks with advanced routing and middleware support.
+
 ## Usage
 Add `uws-server` as a dependency and install via npm
 ```sh
@@ -140,11 +142,28 @@ Name | Type | Description
 `notFound` | *`function(c, path)`* | Function to call for each not found request. Return value will be used as the `404` response. Default is `undefined`
 
 ## Benchmarks
-Quick benchmark to a simple endpoint that returns zero bytes with a 200 status code on my local machine (`i7`, `wsl2`, node `v22.15.0`):
-### Hono
+Quick benchmark to an endpoint that returns zero bytes with a `200` status code (`i7`, `wsl2`, `node v22.15.0`)
 ```
 bombardier --fasthttp -l -d 10s -c 128 "http://localhost:8080/health"
-
+```
+### uWebSockets (vanilla)
+```
+Statistics        Avg      Stdev        Max
+  Reqs/sec    159074.38   18865.07  192568.37
+  Latency      803.23us     1.19ms   139.73ms
+  Latency Distribution
+     50%   652.00us
+     75%     1.02ms
+     90%     1.45ms
+     95%     1.81ms
+     99%     2.72ms
+  HTTP codes:
+    1xx - 0, 2xx - 1590616, 3xx - 0, 4xx - 0, 5xx - 0
+    others - 0
+  Throughput:    24.27MB/s
+```
+### Hono
+```
 Statistics        Avg      Stdev        Max
   Reqs/sec    142158.70   17551.53  176572.69
   Latency        0.90ms   768.26us   146.56ms
@@ -161,8 +180,6 @@ Statistics        Avg      Stdev        Max
 ```
 ### H3
 ```
-bombardier --fasthttp -l -d 10s -c 128 "http://localhost:8080/health"
-
 Statistics        Avg      Stdev        Max
   Reqs/sec    106615.78   13159.17  122120.10
   Latency        1.21ms     1.10ms   129.36ms
@@ -179,8 +196,6 @@ Statistics        Avg      Stdev        Max
 ```
 ### Elysia
 ```
-bombardier --fasthttp -l -d 10s -c 128 "http://localhost:8080/health"
-
 Statistics        Avg      Stdev        Max
   Reqs/sec     58095.49    3815.93   62637.02
   Latency        2.22ms     1.48ms   129.70ms
@@ -197,8 +212,6 @@ Statistics        Avg      Stdev        Max
 ```
 ### Express (non-uws)
 ```
-bombardier --fasthttp -l -d 10s -c 128 "http://localhost:8080/health"
-
 Statistics        Avg      Stdev        Max
   Reqs/sec     18794.08    1940.57   21559.27
   Latency        6.85ms     2.55ms   210.50ms
@@ -216,12 +229,16 @@ Statistics        Avg      Stdev        Max
 ### Results
 Name | Req/s (avg) | Req/s (max) | p99 | Multiplier
 -----|-------------|-------------|-----|-----------
+uWebSockets | 159,074.38 | 192,568.37 | 2.72ms | `8.46x`-`8.93x`
 Hono | 142,158.70 | 176,572.69 | 2.95ms | `7.56x`-`8.19x`
 H3 | 106,615.78 | 122,120.10 | 2.92ms | `5.67x`-`5.66x`
 Elysia | 58,095.49 | 62,637.02 | 4.42ms | `3.09x`-`2.90x`
 Express | 18,794.08 | 21,559.27 | 12.98ms | `1x`-`1x`
 
 *Elysia with uWS sees `3x` improvement over Express. While H3 with uWS sees over `5x` improvement, and Hono with uWS sees over `7x` improvement*
+
+> [!NOTE]
+> `uws-server` is able to achieve ~90% throughput of vanilla uWebSockets. But with the benefit of being able to use higher-level frameworks with advanced routing and middleware support. The extra overhead comes from the framework routing layer and the creation of `Request`/`Response` objects during the request flow
 
 ## Examples
 Serve a Hono app instance on port `8080`, and static assets from the `build` directory at the `/static` mount path
