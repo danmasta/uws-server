@@ -238,7 +238,7 @@ Express | 18,794.08 | 21,559.27 | 12.98ms | `1x`-`1x`
 *Elysia with uWS sees `3x` improvement over Express. While H3 with uWS sees over `5x` improvement, and Hono with uWS sees over `7x` improvement*
 
 > [!NOTE]
-> `uws-server` is able to achieve ~90% throughput of vanilla uWebSockets. But with the benefit of being able to use higher-level frameworks with advanced routing and middleware support. The extra overhead comes from the framework routing layer and the creation of `Request`/`Response` objects during the request flow
+> Based on the results, `uws-server` is able to achieve ~90% throughput of vanilla uWebSockets. But with the benefit of being able to use higher-level frameworks with advanced routing and middleware support. The extra overhead comes from the framework routing layer and the creation of `Request`/`Response` objects during the request flow
 
 ## Examples
 Serve a Hono app instance on port `8080`, and static assets from the `build` directory at the `/static` mount path
