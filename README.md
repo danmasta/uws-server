@@ -127,6 +127,9 @@ Name | Type | Description
 `rewrite` | *`function(path)`* | Function to use for rewriting file paths before lookup. Default is `undefined`
 `lastModified` | *`boolean`* | Enable setting the `last-modified` header. Default is `true`
 `nosniff` | *`boolean`* | Enable setting the `x-content-type-options` header. Default is `true`
+`maxAge` | *`number`* | Time in seconds to remain fresh in cache. Used to set the [`max-age`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control#max-age) cache-control header directive. Default is `86400` (1 day)
+`cacheControl` | *`string[]\|boolean`* | List of [directives](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control#directives) to add to the cache-control header. Default is `['public']`
+`immutable` | *`boolean`* | Add the [`immutable`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control#immutable) cache-control header directive. Useful if you're using versioned/hashed file names for cache-busting. Default is `false`
 `cache` | *`boolean`* | Enable in-memory LRU cache for files. Default is `false`
 `max` | *`number`* | Max entry size of LRU cache. Default is `1024`
 `maxSize` | *`number`* | Max allowed size of files to cache in bytes. Files larger than this are not cached and always streamed from disk. Default is `1048576` (1MB)
