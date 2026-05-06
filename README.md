@@ -92,7 +92,7 @@ Name | Type | Description
 `bind` | *`string`* | Address to bind server to. This can be a wildcard address (`::`, `0.0.0.0`), loopback address (`127.0.0.1`, `::1`, `localhost`), or a specific interface address (`10.0.0.1`). Default is `::`
 `port` | *`number`* | Port to listen on (`undefined` or `null` will allocate a random port). Default is `undefined`
 `defaultHost` | *`string`* | Default host to use for requests without a host header. Default is `undefined`
-`ssl` | *`boolean`* | Enable `SSL`. You will need to supply `server` options for the key/cert configuration. Default is `false`
+`ssl` | *`boolean`* | Enable `SSL`. You will need to supply `app` options for the key/cert configuration. Default is `false`
 `http3` | *`boolean`* | Enable `HTTP/3`. This is [experimental](https://github.com/uNetworking/uWebSockets/issues/1280). Default is `false`
 `createServer` | *`function`* | Custom function to use when generating the server instance. Default is `undefined`
 `app` | *`object`* | Custom [`AppOptions`](https://unetworking.github.io/uWebSockets.js/generated/interfaces/AppOptions.html) to pass to `uWebSockets` on server instance creation. Default is `undefined`
@@ -142,7 +142,7 @@ Name | Type | Description
 `notFound` | *`function(c, path)`* | Function to call for each not found request. Return value will be used as the `404` response. Default is `undefined`
 
 ## Benchmarks
-Quick benchmark to an endpoint that returns zero bytes with a `200` status code (`i7`, `wsl2`, `node v22.15.0`)
+Quick benchmark to an endpoint that returns zero bytes with a `200` status code (`i7`, `wsl2`, node `v22.x`)
 ```
 bombardier --fasthttp -l -d 10s -c 128 "http://localhost:8080/health"
 ```
