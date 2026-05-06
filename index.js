@@ -3,7 +3,7 @@ import { Request, uWSRequest } from './lib/request.js';
 import { uWSResponse } from './lib/response.js';
 import { serve, Server, uWSServer } from './lib/server.js';
 import { ServeStatic, serveStatic } from './lib/static.js';
-import { conninfo, RequestError, ResponseError, ServerError } from './lib/util.js';
+import { conninfo, RequestError, ResponseError, ServerError, ServeStaticError } from './lib/util.js';
 
 export {
     conninfo,
@@ -15,6 +15,7 @@ export {
     ServerError,
     ServeStatic,
     serveStatic,
+    ServeStaticError,
     SYMBOLS,
     uWSRequest,
     uWSResponse,
