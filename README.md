@@ -140,7 +140,7 @@ Name | Type | Description
 `range` | *`boolean`* | Enable support for [range requests](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Range_requests). Default is `true`
 `fallthrough` | *`boolean`* | Allow not found requests to continue downstream to other handlers. Default is `false`
 `found` | *`function(c, path)`* | Function to call for each found request. Return value is ignored. Default is `undefined`
-`notFound` | *`function(c, path)`* | Function to call for each not found request. Return value will be used as the `404` response. Default is `undefined`
+`notFound` | *`function(c, path)`* | Function to call for each not found request. Return value will be used as the `404` response. Default is `c => c.body(null, 404)`
 
 ## Benchmarks
 Quick benchmark to an endpoint that returns zero bytes with a `200` status code (`i7`, `wsl2`, node `v22.x`)
