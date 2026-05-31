@@ -19,7 +19,7 @@ uWebSockets server based on web standards APIs
 ## About
 Lightweight server implementation based on [uWebSockets](https://github.com/uNetworking/uWebSockets.js). Originally designed with the [Hono](#hono) framework in mind, it can also be used with [Elysia](#elysia) or any other framework/runtime that supports [web standards APIs](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
 
-Based on the [benchmarks](#results), `uws-server` is able to achieve ~90% throughput of vanilla uWebSockets. But with the benefit of being able to use higher-level frameworks with advanced routing and middleware support.
+Based on the [benchmarks](#results), `uws-server` is able to achieve ~90% throughput of vanilla uWebSockets. But with the added benefit of being able to use higher-level frameworks with advanced routing and middleware support.
 
 ## Usage
 Add `uws-server` as a dependency and install via npm
@@ -48,7 +48,7 @@ import { Hono } from 'hono';
 const app = new Hono();
 
 serve({
-    fetch: app.fetch
+    fetch: app
 });
 ```
 ### Elysia
@@ -59,7 +59,7 @@ import { Elysia } from 'elysia';
 const app = new Elysia();
 
 serve({
-    fetch: app.fetch
+    fetch: app
 });
 ```
 ### Other Frameworks
@@ -127,6 +127,7 @@ Name | Type | Description
 `normalize` | *`string`* | String to remove from beginning of request paths. If you mounted the middleware at `/static/*`, Hono will include `/static` in the request path. Setting this option to `/static` would remove the leading mount point. Default is `undefined`
 `index` | *`boolean`* | Enable serving `index.html` if a matched path is a directory. Default is `false`
 `rewrite` | *`function(path)`* | Function to use for rewriting file paths before lookup. Default is `undefined`
+`alias` | *`object`* | Static map to use for rewriting file paths before lookup. Default is `undefined`
 `lastModified` | *`boolean`* | Enable setting the `last-modified` header. Default is `true`
 `nosniff` | *`boolean`* | Enable setting the `x-content-type-options` header. Default is `true`
 `maxAge` | *`number`* | Time in seconds to remain fresh in cache. Used to set the [`max-age`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control#max-age) cache-control header directive. Default is `86400` (1 day)
@@ -238,7 +239,7 @@ Express | 18,794.08 | 21,559.27 | 12.98ms | `1x`-`1x`
 *Elysia with uWS sees `3x` improvement over Express. While H3 with uWS sees over `5x` improvement, and Hono with uWS sees over `7x` improvement*
 
 > [!NOTE]
-> Based on the results, `uws-server` is able to achieve ~90% throughput of vanilla uWebSockets. But with the benefit of being able to use higher-level frameworks with advanced routing and middleware support. The extra overhead comes from the framework routing layer and the creation of `Request`/`Response` objects during the request flow
+> Based on the results, `uws-server` is able to achieve ~90% throughput of vanilla uWebSockets. But with the added benefit of being able to use higher-level frameworks with advanced routing and middleware support. The extra overhead comes from the framework routing layer and the creation of `Request`/`Response` objects during the request flow
 
 ## Examples
 Serve a Hono app instance on port `8080`, and static assets from the `build` directory at the `/static` mount path
@@ -254,7 +255,7 @@ app.use('/static/*', serveStatic('build', {
 }));
 
 serve({
-    fetch: app.fetch,
+    fetch: app,
     port: 8080
 });
 ```
@@ -271,6 +272,32 @@ serve({
     createServer,
     uws
 });
+```
+Serve `favicon` using `alias` or `rewrite`
+```js
+// With alias
+const assets = serveStatic('build', {
+    normalize: '/static',
+    alias: {
+        '/favicon.ico': '/img/favicon.ico'
+    }
+});
+
+// With rewrite
+const assets = serveStatic('build', {
+    normalize: '/static',
+    rewrite: (path) => {
+        switch (path) {
+            case '/favicon.ico':
+                return '/img/favicon.ico';
+            default:
+                return path;
+        }
+    }
+});
+
+app.use('/static/*', assets);
+app.use('/favicon.ico', assets);
 ```
 
 ## Testing
