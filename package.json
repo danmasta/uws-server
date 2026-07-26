@@ -17,6 +17,7 @@
     "index.js",
     "lib/**"
   ],
+  "types": "index.d.ts",
   "scripts": {
     "preversion": "make test status"
   },
