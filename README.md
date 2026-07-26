@@ -13,13 +13,15 @@ uWebSockets server based on web standards APIs
 * Support for handling uncaught exceptions
 * Serve static middleware
 * Compression support: `br`, `gzip`, `zstd`, `deflate`
-* Support for in-memory caching
+* Support for in-memory file caching
 * 0 external dependencies
 
 ## About
-Lightweight server implementation based on [uWebSockets](https://github.com/uNetworking/uWebSockets.js). Originally designed with the [Hono](#hono) framework in mind, it can also be used with [Elysia](#elysia) or any other framework/runtime that supports [web standards APIs](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
+Lightweight, high-performance server implementation based on [uWebSockets](https://github.com/uNetworking/uWebSockets.js). Originally designed with the [Hono](#hono) framework in mind, it can also be used with [Elysia](#elysia), [H3](#h3), or any other framework/runtime that supports [web standards APIs](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
 
 Based on the [benchmarks](#results), `uws-server` is able to achieve ~90% throughput of vanilla uWebSockets. But with the added benefit of being able to use higher-level frameworks with advanced routing and middleware support.
+
+For more information, check out the [FAQs](https://github.com/danmasta/uws-server/discussions/1)
 
 ## Usage
 Add `uws-server` as a dependency and install via npm
@@ -52,7 +54,7 @@ serve({
 });
 ```
 ### Elysia
-Usage with [Elysia](https://github.com/elysiajs/elysia) is also very simple, just pass the `fetch` handler to `serve`:
+[Elysia](https://github.com/elysiajs/elysia) is also very simple, just pass the `app` instance to `serve`:
 ```js
 import { Elysia } from 'elysia';
 
@@ -62,15 +64,24 @@ serve({
     fetch: app
 });
 ```
+### H3
+[H3](https://github.com/h3js/h3) is the same, pass the `app` instance to `serve`:
+```js
+import { H3 } from 'h3';
+
+const app = new H3();
+
+serve({
+    fetch: app
+});
+````
 ### Other Frameworks
 Any other framework that supports web standards APIs can also be used. You only need to provide a `fetch` function that accepts a [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) object, and returns a [`Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response) object:
 ```js
-function fetch (request) {
-    return new Response(...);
-}
-
 serve({
-    fetch
+    fetch: async (req) => {
+        return new Response(...);
+    }
 });
 ```
 
