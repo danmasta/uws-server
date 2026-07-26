@@ -97,6 +97,7 @@ export interface ErrorOpts {
 export class uWSServer {
     constructor (opts?: ServerOpts, fn?: ListenFn, supp?: ServerOpts);
     app: TemplatedApp | null;
+    init (): Promise<void>;
     addShutdownHandler (handler: AsyncAction): void;
     register (method: string, route: string, fn: HandlerFn): void;
     listen (fn: ListenFn): Promise<void>;
