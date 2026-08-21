@@ -17,7 +17,7 @@ uWebSockets server based on web standards APIs
 * 0 external dependencies
 
 ## About
-Lightweight, high-performance server implementation based on [uWebSockets](https://github.com/uNetworking/uWebSockets.js). Originally designed with the [Hono](#hono) framework in mind, it can also be used with [Elysia](#elysia), [H3](#h3), or any other framework/runtime that supports [web standards APIs](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
+Lightweight, high-performance server implementation based on [uWebSockets](https://github.com/uNetworking/uWebSockets.js). Provides a native server interface for the fetch API handler pattern, and supports fetch based edge frameworks like [Hono](https://github.com/honojs/hono), [Elysia](https://github.com/elysiajs/elysia), [H3](https://github.com/h3js/h3), or any other framework that supports [web standards APIs](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API). See [adapters](#adapters) for framework-specific entrypoints.
 
 Based on the [benchmarks](#results), `uws-server` is able to achieve ~90% throughput of vanilla uWebSockets. But with the added benefit of being able to use higher-level frameworks with advanced routing and middleware support.
 
@@ -42,41 +42,7 @@ Import functions
 ```js
 import { serve, serveStatic } from 'uws-server';
 ```
-### Hono
-Usage with [Hono](https://github.com/honojs/hono) is similar to the [node-server](https://github.com/honojs/node-server) adapter:
-```js
-import { Hono } from 'hono';
-
-const app = new Hono();
-
-serve({
-    fetch: app
-});
-```
-### Elysia
-[Elysia](https://github.com/elysiajs/elysia) is also very simple, just pass the `app` instance to `serve`:
-```js
-import { Elysia } from 'elysia';
-
-const app = new Elysia();
-
-serve({
-    fetch: app
-});
-```
-### H3
-[H3](https://github.com/h3js/h3) is the same, pass the `app` instance to `serve`:
-```js
-import { H3 } from 'h3';
-
-const app = new H3();
-
-serve({
-    fetch: app
-});
-````
-### Other Frameworks
-Any other framework that supports web standards APIs can also be used. You only need to provide a `fetch` function that accepts a [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) object, and returns a [`Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response) object:
+Any framework that supports web standards APIs can be used. You only need to provide a `fetch` function that accepts a [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) object, and returns a [`Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response) object
 ```js
 serve({
     fetch: async (req) => {
@@ -84,6 +50,43 @@ serve({
     }
 });
 ```
+You can also pass an app instance directly, any object that exposes a `fetch` method works (Hono, Elysia, H3, etc)
+```js
+const app = new Hono();
+
+serve({
+    fetch: app
+});
+```
+
+## Adapters
+The main entrypoint exports are framework-neutral, `serveStatic` and `conninfo` work directly with web standard `Request` objects. Framework-specific versions are available from the adapter entrypoints
+```js
+import { serve, serveStatic, conninfo } from 'uws-server/hono';
+import { serve, serveStatic, conninfo } from 'uws-server/elysia';
+import { serve, serveStatic, conninfo } from 'uws-server/h3';
+```
+*Note: Each adapter exports the base server functions (`serve`, `Server`, `uWSServer`), plus a `ServeStatic` subclass, `serveStatic` factory, and `conninfo` bound to that framework's context shape*
+
+### Custom Adapters
+The base serve static middleware reads and writes through six overridable context accessor methods, so adding support for a new framework is a small subclass
+```js
+import { createConninfo, ServeStatic } from 'uws-server';
+
+// Implement accessor methods based on the context shape
+class CustomStatic extends ServeStatic {
+    finalized (c) {}
+    path (c) {}
+    method (c) {}
+    header (c, name) {}
+    set (c, name, val) {}
+    send (c, body, status, headers) {}
+}
+
+// Conninfo is created from a socket getter
+const conninfo = createConninfo(c => c.socket);
+```
+*Note: The base server exports (`serve`, `Server`, `uWSServer`) are generic and work with any framework unchanged, only the `ServeStatic` subclass accessor methods and `conninfo` getter need to be implemented for a new framework*
 
 ## Documentation
 ### Server
@@ -124,7 +127,19 @@ Name | Type | Description
 ### ServeStatic
 Middleware for serving static files from the file system. You can use the `ServeStatic` class directly, or use the factory function `serveStatic`
 ```js
+// Generic, serves web standard Requests
 import { ServeStatic, serveStatic } from 'uws-server';
+
+// Framework adapters
+import { ServeStatic, serveStatic } from 'uws-server/hono';
+```
+Supports compression, range requests, and in-memory caching. The generic version accepts a `Request` and returns a lazy `uWSResponse`, so it can be used with a native server without framework
+```js
+const assets = serveStatic('public', { fallthrough: true });
+
+serve({
+    fetch: req => assets(req, () => handler(req))
+});
 ```
 #### Signature:
 ```js
@@ -152,7 +167,7 @@ Name | Type | Description
 `range` | *`boolean`* | Enable support for [range requests](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Range_requests). Default is `true`
 `fallthrough` | *`boolean`* | Allow not found requests to continue downstream to other handlers. Default is `false`
 `found` | *`function(c, path)`* | Function to call for each found request. Return value is ignored. Default is `undefined`
-`notFound` | *`function(c, path)`* | Function to call for each not found request. Return value will be used as the `404` response. Default is `c => c.body(null, 404)`
+`notFound` | *`function(c, path)`* | Function to call for each not found request. Return value will be used as the `404` response. Default is `undefined` (sends an empty `404` response)
 
 ## Benchmarks
 Quick benchmark to an endpoint that returns zero bytes with a `200` status code (`i7`, `wsl2`, node `v22.x`)
@@ -256,7 +271,7 @@ Express | 18,794.08 | 21,559.27 | 12.98ms | `1x`-`1x`
 ## Examples
 Serve a Hono app instance on port `8080`, and static assets from the `build` directory at the `/static` mount path
 ```js
-import { serve, serveStatic } from 'uws-server';
+import { serve, serveStatic } from 'uws-server/hono';
 import { Hono } from 'hono';
 
 const app = new Hono();
