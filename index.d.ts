@@ -1,4 +1,3 @@
-import type { Context } from 'hono';
 import type uws from 'uws';
 import type { AppOptions, TemplatedApp, HttpRequest, HttpResponse } from 'uws';
 
@@ -16,7 +15,9 @@ export interface ConnAddr {
     family: string | null
 }
 
-export function conninfo (c: Context, { proxy }?: { proxy?: boolean }): ConnAddr;
+export function conninfo (req: Request, { proxy }?: { proxy?: boolean }): ConnAddr;
+
+export function createConninfo<C = Request> (getSocket: (c: C) => HttpResponse): (c: C, opts?: { proxy?: boolean }) => ConnAddr;
 
 export class Request extends globalThis.Request {}
 
@@ -121,7 +122,7 @@ export function serve (opts?: ServerOpts, fn?: ListenFn): Promise<void>;
 
 export function Server (opts?: ServerOpts, fn?: ListenFn): uWSServer;
 
-export interface StaticOpts {
+export interface StaticOpts<C = Request> {
     cwd?: string,
     root?: string,
     normalize?: string,
@@ -140,18 +141,24 @@ export interface StaticOpts {
     encodings?: string[] | boolean,
     range?: boolean,
     fallthrough?: boolean,
-    found?: (c: Context, path: string) => void,
-    notFound?: (c: Context, path: string) => Response
+    found?: (c: C, path: string) => void,
+    notFound?: (c: C, path: string) => unknown
 }
 
-type NextFn = () => Promise<void>;
+type NextFn = () => Promise<void> | void;
 
-type MiddlewareFn = (c: Context, next: NextFn) => Promise<Response | void>;
+type MiddlewareFn<C = Request> = (c: C, next?: NextFn) => Promise<unknown>;
 
-export class ServeStatic {
-    constructor (root?: string, opts?: StaticOpts);
-    notFound (c: Context, next: NextFn, path: string): Response | Promise<void>;
-    middleware (): MiddlewareFn;
+export class ServeStatic<C = Request> {
+    constructor (root?: string, opts?: StaticOpts<C>);
+    finalized (c: C): boolean;
+    path (c: C): string;
+    method (c: C): string;
+    header (c: C, name: string): string | undefined;
+    set (c: C, name: string, val: string | number | string[]): void;
+    send (c: C, body?: unknown, status?: number, headers?: Record<string, string>): unknown;
+    notFound (c: C, next: NextFn, path: string): unknown;
+    middleware (): MiddlewareFn<C>;
     static factory(): (root?: string, opts?: StaticOpts) => ServeStatic;
 }
 

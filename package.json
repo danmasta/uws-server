@@ -13,6 +13,13 @@
   ],
   "main": "index.js",
   "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./hono": "./lib/adapters/hono.js",
+    "./elysia": "./lib/adapters/elysia.js",
+    "./h3": "./lib/adapters/h3.js",
+    "./package.json": "./package.json"
+  },
   "files": [
     "index.js",
     "lib/**"
