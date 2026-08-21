@@ -25,6 +25,8 @@ export class uWSRequest extends Request {
         defaultHost?: string,
         scheme?: string
     });
+    abort (): void;
+    discard (max?: number): void;
 }
 
 class Response extends globalThis.Response {
@@ -69,6 +71,7 @@ export interface ServerOpts {
     app?: AppOptions,
     uws?: uWSModule,
     globals?: boolean,
+    discardMax?: number,
     showError?: boolean,
     showStack?: boolean,
     log?: Logger,
