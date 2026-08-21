@@ -32,10 +32,35 @@ describe('response', () => {
         assert.instanceOf(new uWSResponse('x'), ResponseBuiltIn);
     });
 
-    it('should inherit static methods', () => {
-        assert.isFunction(uWSResponse.json);
+    it('should create lazy responses from the json helper', async () => {
+        let res = uWSResponse.json({ a: 1 });
+        assert.instanceOf(res, uWSResponse);
+        assert.isUndefined(res[SYMBOLS.res]);
+        assert.equal(res.headers.get('content-type'), 'application/json');
+        assert.deepEqual(await res.json(), { a: 1 });
+
+        // Spec output for strings and null
+        assert.equal(uWSResponse.json('hi')[SYMBOLS.state].body, '"hi"');
+        assert.equal(uWSResponse.json(null)[SYMBOLS.state].body, 'null');
+        assert.throws(() => uWSResponse.json(undefined), TypeError);
+
+        // Init headers win over the default content-type
+        let custom = uWSResponse.json({ a: 1 }, { headers: { 'content-type': 'application/ld+json' } });
+        assert.equal(custom.headers.get('content-type'), 'application/ld+json');
+    });
+
+    it('should create lazy responses from the redirect helper', () => {
+        let res = uWSResponse.redirect('/login', 303);
+        assert.instanceOf(res, uWSResponse);
+        assert.isUndefined(res[SYMBOLS.res]);
+        assert.equal(res.status, 303);
+        assert.equal(res.headers.get('location'), '/login');
         assert.equal(uWSResponse.redirect('http://localhost/').status, 302);
-        assert.equal(uWSResponse.json({ a: 1 }).headers.get('content-type'), 'application/json');
+    });
+
+    it('should inherit remaining static methods', () => {
+        assert.isFunction(uWSResponse.error);
+        assert.equal(uWSResponse.error().status, 0);
     });
 
     it('should not build the native response on headers access', () => {
