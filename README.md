@@ -177,34 +177,50 @@ bombardier --fasthttp -l -d 10s -c 128 "http://localhost:8080/health"
 ### uWebSockets (vanilla)
 ```
 Statistics        Avg      Stdev        Max
-  Reqs/sec    159074.38   18865.07  192568.37
-  Latency      803.23us     1.19ms   139.73ms
+  Reqs/sec    160339.39   16328.31  202117.13
+  Latency      796.75us   146.12us    10.50ms
   Latency Distribution
-     50%   652.00us
-     75%     1.02ms
-     90%     1.45ms
-     95%     1.81ms
-     99%     2.72ms
+     50%   648.00us
+     75%     1.01ms
+     90%     1.46ms
+     95%     1.84ms
+     99%     2.79ms
   HTTP codes:
-    1xx - 0, 2xx - 1590616, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 1603438, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:    24.27MB/s
+  Throughput:    24.46MB/s
+```
+### uws-server (no framework)
+```
+Statistics        Avg      Stdev        Max
+  Reqs/sec    145293.23   12811.47  176382.81
+  Latency        0.88ms   158.00us    12.59ms
+  Latency Distribution
+     50%   759.00us
+     75%     1.10ms
+     90%     1.50ms
+     95%     1.87ms
+     99%     2.90ms
+  HTTP codes:
+    1xx - 0, 2xx - 1452951, 3xx - 0, 4xx - 0, 5xx - 0
+    others - 0
+  Throughput:    21.75MB/s
 ```
 ### Hono
 ```
 Statistics        Avg      Stdev        Max
-  Reqs/sec    142158.70   17551.53  176572.69
-  Latency        0.90ms   768.26us   146.56ms
+  Reqs/sec    140451.92   12957.60  178435.23
+  Latency        0.91ms   168.18us    10.01ms
   Latency Distribution
-     50%   777.00us
-     75%     1.11ms
-     90%     1.50ms
-     95%     1.86ms
-     99%     2.95ms
+     50%   797.00us
+     75%     1.12ms
+     90%     1.49ms
+     95%     1.83ms
+     99%     2.97ms
   HTTP codes:
-    1xx - 0, 2xx - 1414384, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 1404597, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:    21.18MB/s
+  Throughput:    21.03MB/s
 ```
 ### H3
 ```
@@ -255,18 +271,19 @@ Statistics        Avg      Stdev        Max
   Throughput:     5.29MB/s
 ```
 ### Results
-Name | Req/s (avg) | Req/s (max) | p99 | Multiplier
------|-------------|-------------|-----|-----------
-uWebSockets | 159,074.38 | 192,568.37 | 2.72ms | `8.46x`-`8.93x`
-Hono | 142,158.70 | 176,572.69 | 2.95ms | `7.56x`-`8.19x`
-H3 | 106,615.78 | 122,120.10 | 2.92ms | `5.67x`-`5.66x`
-Elysia | 58,095.49 | 62,637.02 | 4.42ms | `3.09x`-`2.90x`
-Express | 18,794.08 | 21,559.27 | 12.98ms | `1x`-`1x`
+Name | Req/s (avg) | Req/s (max) | p99 | % of uWS | Multiplier
+-----|-------------|-------------|-----|----------|-----------
+uWebSockets | 160,339.39 | 202,117.13 | 2.79ms | `100%` | `8.53x`-`9.37x`
+uws-server | 145,293.23 | 176,382.81 | 2.90ms | `90.6%` | `7.73x`-`8.18x`
+Hono | 140,451.92 | 178,435.23 | 2.97ms | `87.6%` | `7.47x`-`8.28x`
+H3 | 106,615.78 | 122,120.10 | 2.92ms | `66.5%` | `5.67x`-`5.66x`
+Elysia | 58,095.49 | 62,637.02 | 4.42ms | `36.2%` | `3.09x`-`2.90x`
+Express | 18,794.08 | 21,559.27 | 12.98ms | `11.7%` | `1x`-`1x`
 
-*Elysia with uWS sees `3x` improvement over Express. While H3 with uWS sees over `5x` improvement, and Hono with uWS sees over `7x` improvement*
+*Native fetch handler with no framework achieves ~91% throughput of vanilla uWebSockets, and Hono hits ~88%. Compared to Express, Elysia with uWS sees `3x` improvement, H3 over `5x`, and Hono over `7x`*
 
 > [!NOTE]
-> Based on the results, `uws-server` is able to achieve ~90% throughput of vanilla uWebSockets. But with the added benefit of being able to use higher-level frameworks with advanced routing and middleware support. The extra overhead comes from the framework routing layer and the creation of `Request`/`Response` objects during the request flow
+> Based on the results, `uws-server` is able to achieve ~90% throughput of vanilla uWebSockets. But with the added benefit of being able to use higher-level frameworks with advanced routing and middleware support. The translation of `Request`/`Response` objects during the request flow adds ~9% overhead, and the framework routing layer adds a few extra points on top of that (varies by framework)
 
 ## Examples
 Serve a Hono app instance on port `8080`, and static assets from the `build` directory at the `/static` mount path
