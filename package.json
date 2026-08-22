@@ -43,6 +43,6 @@
     "chai": "^6.2.1",
     "eslint": "^9.39.1",
     "mocha": "^11.7.5",
-    "uws": "github:uNetworking/uWebSockets.js#v20.52.0"
+    "uws": "github:uNetworking/uWebSockets.js#v20.69.0"
   }
 }
