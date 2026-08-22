@@ -60,13 +60,13 @@ serve({
 ```
 
 ## Adapters
-The main entrypoint exports are framework-neutral, `serveStatic` and `conninfo` work directly with web standard `Request` objects. Framework-specific versions are available from the adapter entrypoints
+The main entrypoint exports are framework-neutral. The `serve`, `serveStatic`, and `conninfo` functions work directly with native web standard `Request` objects. Framework-specific versions are available from the adapter entrypoints
 ```js
-import { serve, serveStatic, conninfo } from 'uws-server/hono';
-import { serve, serveStatic, conninfo } from 'uws-server/elysia';
-import { serve, serveStatic, conninfo } from 'uws-server/h3';
+import { serve, serveStatic } from 'uws-server/hono';
+import { serve, serveStatic } from 'uws-server/elysia';
+import { serve, serveStatic } from 'uws-server/h3';
 ```
-*Note: Each adapter exports the base server functions (`serve`, `Server`, `uWSServer`), plus a `ServeStatic` subclass, `serveStatic` factory, and `conninfo` bound to that framework's context shape*
+*Note: Each adapter exports the base server functions (`serve`, `Server`), plus a `ServeStatic` subclass, `serveStatic` factory, and `conninfo` function bound to that framework's context shape*
 
 ### Custom Adapters
 The base serve static middleware reads and writes through six overridable context accessor methods, so adding support for a new framework is a small subclass
@@ -86,7 +86,7 @@ class CustomStatic extends ServeStatic {
 // Conninfo is created from a socket getter
 const conninfo = createConninfo(c => c.socket);
 ```
-*Note: The base server exports (`serve`, `Server`, `uWSServer`) are generic and work with any framework unchanged, only the `ServeStatic` subclass accessor methods and `conninfo` getter need to be implemented for a new framework*
+*Note: The base server exports (`serve`, `Server`) are generic and work with any framework unchanged. Only the `ServeStatic` subclass accessor methods and `conninfo` getter function need to be implemented for a new framework*
 
 ## Documentation
 ### Server
