@@ -54,6 +54,7 @@ export interface Logger {
     error (err: Error, ...args: unknown[]): void;
     warn (message: string, ...args: unknown[]): void;
     debug (message: string, ...args: unknown[]): void;
+    flush? (cb?: (err?: Error) => void): void | Promise<void>;
 }
 
 // Note: Promise or function that returns a promise or value
@@ -76,6 +77,8 @@ export interface ServerOpts {
     showError?: boolean,
     showStack?: boolean,
     log?: Logger,
+    flush?: boolean | ((log: Logger) => void | Promise<void>),
+    flushTimeout?: number,
     timeout?: number,
     listen?: boolean,
     signals?: string | string[],
