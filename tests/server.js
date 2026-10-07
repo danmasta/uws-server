@@ -207,3 +207,100 @@ describe('server', () => {
     });
 
 });
+
+describe('exit', () => {
+
+    let exit = process.exit;
+    let exited;
+
+    beforeEach(() => {
+        exited = undefined;
+        process.exit = code => { exited = code; };
+    });
+
+    after(() => {
+        process.exit = exit;
+    });
+
+    function create (opts) {
+        return new uWSServer({
+            fetch: () => new Response(),
+            log,
+            signals: false,
+            handleUncaught: false,
+            ...opts
+        });
+    }
+
+    it('should wait for the logger to flush before exiting', async () => {
+        let flushed = false;
+        let server = create({
+            log: {
+                ...log,
+                flush (cb) {
+                    setTimeout(() => {
+                        flushed = true;
+                        cb();
+                    }, 50);
+                }
+            }
+        });
+        let promise = server.exit(2);
+        await delay(10);
+        assert.equal(exited, undefined);
+        await promise;
+        assert.equal(flushed, true);
+        assert.equal(exited, 2);
+    });
+
+    it('should exit after flushTimeout when flush never completes', async () => {
+        let warned = false;
+        let server = create({
+            flushTimeout: 20,
+            log: {
+                ...log,
+                warn: () => { warned = true; },
+                flush: noop
+            }
+        });
+        await server.exit();
+        assert.equal(warned, true);
+        assert.equal(exited, 0);
+    });
+
+    it('should exit when flush fails', async () => {
+        let errored = false;
+        let server = create({
+            log: {
+                ...log,
+                error: () => { errored = true; },
+                flush: cb => cb(new Error('destination failed'))
+            }
+        });
+        await server.exit(1);
+        assert.equal(errored, true);
+        assert.equal(exited, 1);
+    });
+
+    it('should support custom flush functions', async () => {
+        let called = false;
+        let server = create({
+            flush: async () => { called = true; }
+        });
+        await server.exit();
+        assert.equal(called, true);
+        assert.equal(exited, 0);
+    });
+
+    it('should skip flush when disabled', async () => {
+        let called = false;
+        let server = create({
+            flush: false,
+            log: { ...log, flush: () => { called = true; } }
+        });
+        await server.exit();
+        assert.equal(called, false);
+        assert.equal(exited, 0);
+    });
+
+});
