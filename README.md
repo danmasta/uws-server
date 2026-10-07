@@ -116,6 +116,8 @@ Name | Type | Description
 `showError` | *`boolean`* | Include error message in the response text for uncaught errors during the `Request`/`Response` flow. Default is `true`
 `showStack` | *`boolean`* | Include error stack trace in the response text for uncaught errors during the `Request`/`Response` flow. Default is `false`
 `log` | *`object`* | Log implementation to use. Custom loggers should at least implement the methods: `info`, `error`, `warn`, `debug`, and support printf style [string formatting](https://nodejs.org/api/util.html#utilformatformat-args). Default is `console`
+`flush` | *`boolean\|function`* | Flush the logger before exiting the process. The default handler calls `log.flush(cb)` if exists, so loggers like `pino` work out of the box. Pass a function that receives the logger and returns a promise to customize, or `false` to disable. Default is `true`
+`flushTimeout` | *`number`* | Maximum time to wait for the log flush before exiting the process in milliseconds. Default is `1000`
 `timeout` | *`number`* | Maximum time to wait for connections to drain during graceful shutdown in milliseconds. Default is `10000`
 `listen` | *`boolean`* | Start listen socket on server create. Default is `false`
 `signals` | *`string\|string[]`* | [Signals](https://nodejs.org/api/os.html#signal-constants) to listen to for graceful shutdown. Default is `['SIGINT', 'SIGTERM']`
