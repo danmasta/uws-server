@@ -1,4 +1,5 @@
 import { rejects } from 'node:assert';
+import { connect } from 'node:net';
 import { setTimeout as delay } from 'node:timers/promises';
 import { uWSServer } from '../lib/server.js';
 
@@ -204,6 +205,69 @@ describe('server', () => {
         await delay(100);
         let res = await fetch(`${base}/echo`, { method: 'POST', body: 'still alive' });
         assert.equal(await res.text(), 'still alive');
+    });
+
+});
+
+describe('close', () => {
+
+    function create (opts) {
+        return new uWSServer({
+            port: 0,
+            log,
+            signals: false,
+            handleUncaught: false,
+            timeout: 100,
+            fetch: () => new Response('ok'),
+            ...opts
+        });
+    }
+
+    // Opens a raw keep-alive connection and completes one request
+    function keepAlive (port) {
+        return new Promise((resolve, reject) => {
+            let socket = connect(port, 'localhost');
+            socket.on('error', reject);
+            socket.once('data', () => resolve(socket));
+            socket.write('GET / HTTP/1.1\r\nHost: localhost\r\n\r\n');
+        });
+    }
+
+    it('should close idle connections before shutdown handlers', async () => {
+        let closedBeforeHandler = false;
+        let server = create({
+            // Note: Waits for the client to see the close, times out if the
+            // server only closes idle connections after handlers
+            shutdown: async () => {
+                closedBeforeHandler = await Promise.race([
+                    closed.then(() => true),
+                    delay(200, false)
+                ]);
+            }
+        });
+        await new Promise(res => server.listen(res));
+        let socket = await keepAlive(server.port);
+        let closed = new Promise(res => socket.once('close', res));
+        await server.close();
+        assert.equal(closedBeforeHandler, true);
+    });
+
+    it('should send connection close on responses during shutdown', async () => {
+        let started = Promise.withResolvers();
+        let server = create({
+            fetch: async () => {
+                started.resolve();
+                await delay(50);
+                return new Response('ok');
+            }
+        });
+        await new Promise(res => server.listen(res));
+        let first = fetch(`http://localhost:${server.port}/`);
+        await started.promise;
+        let closing = server.close();
+        let res = await first;
+        assert.equal(res.headers.get('connection'), 'close');
+        await closing;
     });
 
 });
