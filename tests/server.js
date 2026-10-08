@@ -272,6 +272,72 @@ describe('close', () => {
 
 });
 
+describe('signals', () => {
+
+    let exit = process.exit;
+    let exited;
+
+    beforeEach(() => {
+        exited = undefined;
+        process.exit = code => { exited = code; };
+    });
+
+    afterEach(() => {
+        process.removeAllListeners('SIGINT');
+    });
+
+    after(() => {
+        process.exit = exit;
+    });
+
+    function create (opts) {
+        return new uWSServer({
+            fetch: () => new Response(),
+            log,
+            signals: 'SIGINT',
+            handleUncaught: false,
+            flush: false,
+            ...opts
+        });
+    }
+
+    it('should ignore repeated signals inside the window', async () => {
+        let closed = 0;
+        let server = create({
+            shutdown: () => { closed++; }
+        });
+        process.emit('SIGINT', 'SIGINT');
+        process.emit('SIGINT', 'SIGINT');
+        await delay(20);
+        assert.equal(closed, 1);
+        assert.equal(exited, 0);
+    });
+
+    it('should force exit on repeated signals after the window', async () => {
+        let server = create({
+            exitOnSignal: false,
+            shutdown: () => delay(100)
+        });
+        process.emit('SIGINT', 'SIGINT');
+        await delay(10);
+        server.signaled -= 2000;
+        process.emit('SIGINT', 'SIGINT');
+        assert.equal(exited, 130);
+    });
+
+    it('should share a single close across callers', async () => {
+        let closed = 0;
+        let server = create({
+            signals: false,
+            shutdown: () => { closed++; }
+        });
+        await Promise.all([server.close(), server.close()]);
+        await server.close();
+        assert.equal(closed, 1);
+    });
+
+});
+
 describe('exit', () => {
 
     let exit = process.exit;
