@@ -60,20 +60,22 @@ serve({
 ```
 
 ## Adapters
-The main entrypoint exports are framework-neutral. The `serve`, `serveStatic`, and `conninfo` functions work directly with native web standard `Request` objects. Framework-specific versions are available from the adapter entrypoints
+The main entrypoint exports are **framework-neutral**. The `serve`, `serveStatic`, and `conninfo` functions work directly with native web standard `Request` objects.
+
+Framework-specific versions are available from the adapter entrypoints
 ```js
 import { serve, serveStatic } from 'uws-server/hono';
 import { serve, serveStatic } from 'uws-server/elysia';
 import { serve, serveStatic } from 'uws-server/h3';
 ```
-*Note: Each adapter exports the base server functions (`serve`, `Server`), plus a `ServeStatic` subclass, `serveStatic` factory, and `conninfo` function bound to that framework's context shape*
+*Note: Each adapter exports the base server functions (`serve`, `Server`), plus a `ServeStatic` subclass, `serveStatic` factory, and `conninfo` function for that specific framework*
 
 ### Custom Adapters
-The base serve static middleware reads and writes through six overridable context accessor methods, so adding support for a new framework is a small subclass
+The base serve static middleware reads and writes using six overridable context accessor methods. So adding support for a new framework is just a small subclass
 ```js
 import { createConninfo, ServeStatic } from 'uws-server';
 
-// Implement accessor methods based on the context shape
+// Implement accessor methods based on the framework's context shape
 class CustomStatic extends ServeStatic {
     finalized (c) {}
     path (c) {}
@@ -83,10 +85,10 @@ class CustomStatic extends ServeStatic {
     send (c, body, status, headers) {}
 }
 
-// Conninfo is created from a socket getter
+// Conninfo only needs a simple getter function for the socket
 const conninfo = createConninfo(c => c.socket);
 ```
-*Note: The base server exports (`serve`, `Server`) are generic and work with any framework unchanged. Only the `ServeStatic` subclass accessor methods and `conninfo` getter function need to be implemented for a new framework*
+*Note: The base server exports (`serve`, `Server`) are generic and work with any framework unchanged. Only the `ServeStatic` subclass accessor methods and `conninfo` function need to be implemented for a new framework*
 
 ## Documentation
 ### Server
@@ -125,6 +127,23 @@ Name | Type | Description
 `handleUncaught` | *`boolean`* | Enable handling uncaught exceptions and rejections. Default is `true`
 `exitOnUncaught` | *`boolean`* | Enable exiting process after uncaught exception or rejection. Default is `true`
 `shutdown` | *`function\|promise`* | Handlers to execute on graceful shutdown. Handlers can be `functions` or `promises`, they are executed in order and `awaited`. Default is `undefined`
+
+#### Methods
+Name | Description
+-----|------------
+`init()` | Load `uWebSockets` and create the [app](https://unetworking.github.io/uWebSockets.js/generated/interfaces/TemplatedApp.html) instance. Called automatically by `listen`, useful when you need `server.app` before listening. Returns a promise
+`listen(fn?)` | Start the listen socket. Calls `fn(info, server)` with the bound address once listening. Returns a promise that resolves after the server closes. The `serve` export returns this directly
+`close()` | Graceful shutdown. Stops listening, drains in-flight requests, closes idle connections, then runs shutdown handlers. Idempotent, repeat calls return the same promise
+`exit(code?)` | Flush the logger then exit the process with `code`. Called automatically after `close` when `exitOnSignal` or `exitOnUncaught` is enabled. Returns a promise
+`stop()` | Close the listen socket without draining. Called by `close`
+`addShutdownHandler(fn)` | Add a handler to run during `close`, same as the `shutdown` option
+`address()` | Returns the bound `{ address, family, port }` if listening, otherwise `null`
+
+#### Properties
+Name | Description
+-----|------------
+`app` | The `uWebSockets` [app](https://unetworking.github.io/uWebSockets.js/generated/interfaces/TemplatedApp.html) instance, available after `init`
+`port` | The bound port, available after `listen`. Useful when `port` is `undefined` and a random port was allocated
 
 ### ServeStatic
 Middleware for serving static files from the file system. You can use the `ServeStatic` class directly, or use the factory function `serveStatic`
