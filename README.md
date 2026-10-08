@@ -120,7 +120,7 @@ Name | Type | Description
 `flushTimeout` | *`number`* | Maximum time to wait for the log flush before exiting the process in milliseconds. Default is `1000`
 `timeout` | *`number`* | Maximum time to wait for connections to drain during graceful shutdown in milliseconds. Default is `10000`
 `listen` | *`boolean`* | Start listen socket on server create. Default is `false`
-`signals` | *`string\|string[]`* | [Signals](https://nodejs.org/api/os.html#signal-constants) to listen to for graceful shutdown. Default is `['SIGINT', 'SIGTERM']`
+`signals` | *`string\|string[]`* | [Signals](https://nodejs.org/api/os.html#signal-constants) to listen to for graceful shutdown. Repeats within `200` milliseconds are ignored (a tty and a process supervisor can both deliver the same signal), otherwise trigger a force exit with code `128 + signal number`. Default is `['SIGINT', 'SIGTERM']`
 `exitOnSignal` | *`boolean`* | Enable exiting process after signal shutdown. Default is `true`
 `handleUncaught` | *`boolean`* | Enable handling uncaught exceptions and rejections. Default is `true`
 `exitOnUncaught` | *`boolean`* | Enable exiting process after uncaught exception or rejection. Default is `true`
