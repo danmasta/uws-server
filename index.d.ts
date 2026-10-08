@@ -109,7 +109,7 @@ export class uWSServer {
     register (method: string, route: string, fn: HandlerFn): void;
     listen (fn: ListenFn): Promise<void>;
     stop (): void;
-    exit (code?: number): void;
+    exit (code?: number): Promise<void>;
     drain (): Promise<void>;
     close (): Promise<void>;
     address (): ConnAddr | null;
